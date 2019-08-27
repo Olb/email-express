@@ -1,0 +1,23 @@
+const express = require('express')
+const logger = require('./lib/logger')
+const path = require('path')
+const basicAuth = require('./lib/basic-auth')
+const tokenAuth = require('./lib/token-auth')
+const findUser = require('./lib/find-user')
+const serveStatic = require('serve-static')
+const tokensRouter = require('./routes/tokens')
+const emailsRouter = require('./routes/emails')
+const usersRouter = require('./routes/users')
+
+let app = express()
+
+app.use(logger)
+app.use(serveStatic(path.join(__dirname, 'public')))
+app.use('/uploads', serveStatic(path.join(__dirname, 'uploads')))
+app.use('/tokens', tokensRouter)
+app.use(tokenAuth(findUser.byToken))
+app.use(basicAuth(findUser.byCredentials))
+app.use('/users', usersRouter)
+app.use('/emails', emailsRouter)
+
+app.listen(3000)
